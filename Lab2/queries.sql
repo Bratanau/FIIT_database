@@ -1,7 +1,3 @@
--- Часть 2. Операционные и агрегатные запросы
--- Все запросы используют схему интернет-магазина из ЛР №1.
-
--- 2.1.1. Подробная информация о заказах, покупателях, товарах и позициях.
 SELECT
     o.order_id,
     o.order_date,
@@ -19,9 +15,6 @@ JOIN order_items AS oi ON oi.order_id = o.order_id
 JOIN products AS p ON p.product_id = oi.product_id
 ORDER BY o.order_date DESC, o.order_id, p.product_name;
 
--- 2.1.2. Покупатели без заказов.
--- LEFT JOIN сохраняет покупателей, для которых совпадений в заказах нет.
--- Дополнительные LEFT JOIN показывают, что у таких покупателей нет и позиций.
 SELECT
     c.customer_id,
     c.first_name,
@@ -37,8 +30,6 @@ LEFT JOIN products AS p ON p.product_id = oi.product_id
 WHERE o.order_id IS NULL
 ORDER BY c.customer_id;
 
--- 2.1.3. Активные покупатели, у которых есть завершенный заказ
--- с активным товаром из категории Laptops.
 SELECT DISTINCT
     c.customer_id,
     c.first_name,
@@ -59,7 +50,6 @@ WHERE c.status IN ('active', 'vip')
   AND category.category_name = 'Laptops'
 ORDER BY o.order_date DESC, c.customer_id;
 
--- 2.2.1. Количество и денежные показатели заказов по покупателям.
 SELECT
     c.customer_id,
     c.first_name,
@@ -74,8 +64,6 @@ LEFT JOIN orders AS o ON o.customer_id = c.customer_id
 GROUP BY c.customer_id, c.first_name, c.last_name
 ORDER BY total_order_amount DESC, c.customer_id;
 
--- 2.2.2. Продажи по категориям; HAVING оставляет категории
--- с достаточным объемом проданных единиц.
 SELECT
     category.category_id,
     category.category_name,
@@ -92,7 +80,6 @@ GROUP BY category.category_id, category.category_name
 HAVING SUM(oi.quantity) >= 10
 ORDER BY sales_amount DESC;
 
--- 2.2.3. Сравнение показателей продаж по календарным месяцам.
 SELECT
     DATE_TRUNC('month', o.order_date)::DATE AS sales_month,
     COUNT(o.order_id) AS order_count,
@@ -105,9 +92,6 @@ WHERE o.status IN ('paid', 'shipped', 'delivered')
 GROUP BY DATE_TRUNC('month', o.order_date)
 ORDER BY sales_month;
 
--- Часть 3. Подзапросы и поиск нетривиальных ситуаций
-
--- 3.1. Товары, цена которых выше средней цены их собственной категории.
 SELECT
     p.product_id,
     p.sku,
@@ -128,8 +112,6 @@ WHERE p.price > (
 )
 ORDER BY category.category_name, p.price DESC;
 
--- 3.2. Покупатели, у которых есть хотя бы один завершенный заказ
--- с позицией количеством не менее двух единиц.
 SELECT
     c.customer_id,
     c.first_name,
@@ -146,7 +128,6 @@ WHERE EXISTS (
 )
 ORDER BY c.customer_id;
 
--- 3.3. Активные товары, отсутствующие во всех завершенных заказах.
 SELECT
     p.product_id,
     p.sku,
@@ -164,8 +145,6 @@ WHERE p.is_active = TRUE
   )
 ORDER BY p.product_name;
 
--- 3.4. Заказы, сумма которых выше среднего заказа именно этого покупателя.
--- Подзапрос коррелирован: среднее вычисляется по customer_id внешней строки.
 SELECT
     o.order_id,
     o.customer_id,

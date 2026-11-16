@@ -1,8 +1,4 @@
--- Часть 4. Комплексный аналитический отчет с использованием CTE.
--- Вопрос для руководителя: как меняются объем продаж и число покупателей по месяцам?
-
 WITH eligible_orders AS (
-    -- На вход поступают заказы, не отмененные магазином.
     SELECT
         order_id,
         customer_id,
@@ -12,7 +8,6 @@ WITH eligible_orders AS (
     WHERE status <> 'cancelled'
 ),
 order_line_metrics AS (
-    -- Состав заказа агрегируется до одной строки на заказ.
     SELECT
         oi.order_id,
         SUM(oi.quantity) AS units_sold,
@@ -22,8 +17,6 @@ order_line_metrics AS (
     GROUP BY oi.order_id
 ),
 order_metrics AS (
-    -- Заказы соединяются с покупателями и агрегированными позициями.
-    -- LEFT JOIN сохраняет заказы без позиций; их выручка равна нулю.
     SELECT
         eo.order_id,
         eo.customer_id,
@@ -36,7 +29,6 @@ order_metrics AS (
     LEFT JOIN order_line_metrics AS olm ON olm.order_id = eo.order_id
 ),
 monthly_metrics AS (
-    -- Промежуточные показатели сгруппированы по месяцу.
     SELECT
         DATE_TRUNC('month', om.order_date)::DATE AS sales_month,
         COUNT(*) AS order_count,
@@ -49,7 +41,6 @@ monthly_metrics AS (
     GROUP BY DATE_TRUNC('month', om.order_date)
 ),
 month_comparison AS (
-    -- LAG добавляет выручку предыдущего месяца для сравнения динамики.
     SELECT
         mm.*,
         LAG(mm.revenue) OVER (ORDER BY mm.sales_month) AS previous_month_revenue

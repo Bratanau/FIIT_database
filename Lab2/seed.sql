@@ -1,8 +1,3 @@
--- Дополнительные данные для ЛР №2. Выполнять после schema.sql и data.sql из ЛР №1.
--- Скрипт можно запускать повторно: клиенты и товары защищены UNIQUE,
--- заказы проверяются по уникальной для набора дате и клиенту,
--- позиции заказа имеют составной первичный ключ.
-
 BEGIN;
 
 INSERT INTO customers (
@@ -61,6 +56,7 @@ WITH order_source AS (
             + ((g % 12) * INTERVAL '1 hour') AS order_date
     FROM generate_series(1, 60) AS series(g)
 )
+
 INSERT INTO orders (
     customer_id,
     order_date,
@@ -118,6 +114,7 @@ order_lines AS (
         END
     ) AS line(line_number)
 )
+
 INSERT INTO order_items (order_id, product_id, quantity, unit_price)
 SELECT
     customer_order.order_id,
