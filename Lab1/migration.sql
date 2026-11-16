@@ -1,7 +1,4 @@
-﻿-- Дополнительное изменение предметной области после базовой реализации.
--- Существующие данные сохраняются, база не пересоздается.
-
-ALTER TABLE customers
+﻿ALTER TABLE customers
     ADD COLUMN loyalty_points INT NOT NULL DEFAULT 0;
 
 ALTER TABLE customers
@@ -22,7 +19,6 @@ ALTER TABLE orders
     ADD CONSTRAINT orders_delivery_type_chk
     CHECK (delivery_type IN ('standard', 'express', 'pickup'));
 
--- Обновление уже существующих записей для новых полей.
 UPDATE customers
 SET loyalty_points = 150
 WHERE customer_id = 1;
